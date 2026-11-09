@@ -68,3 +68,17 @@ python scripts/trace_reality_adversary.py --s10 --runs 12 --seed 2000 \
 ```
 
 The restart option targets only the named team v3.2 Home container on the phone. Reality process faults are limited to the team project's allowlisted targets. Keep Matter lab helpers off the development stack's network and fabric; the team MQTT Compose project does not start Matter or Home Assistant.
+
+For the virtual Matter plug check, install the archived lockfile into the team's test directory using Node.js 22+ and npm. The check also uses the same Python test environment at `$root/validation/venv` and requires Linux `unshare` and `ip`. Copy [trace_team_s10_matter.sh](../scripts/trace_team_s10_matter.sh) from the validation commit to the phone if it is newer than the staged release.
+
+```sh
+deps="$root/validation/matter"
+mkdir -p "$deps"
+cp "$release"/tools/matter/package*.json "$deps/"
+npm ci --prefix "$deps" --ignore-scripts
+cp "$release"/tools/matter/*.mjs "$deps/"
+node --test "$deps/mapping.test.mjs"
+sh /path/to/trace_team_s10_matter.sh
+```
+
+The protocol trace creates a private network namespace, commissions a standard virtual plug with a fresh fabric, and checks independent readback and override through Home's public API. It stops the test processes and keeps their receipts under the team root.

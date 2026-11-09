@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "enum": [
+        "ACCEPTED",
+        "REJECTED",
+        "UNAVAILABLE",
+        "UNSUPPORTED",
+        "CONFLICT",
+        "PROHIBITED",
+        "UNKNOWN"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "operation_id": {
+      "title": "Operation Id",
+      "type": "string"
+    },
+    "detail": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Detail"
+    },
+    "job_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Job Id"
+    }
+  },
+  "required": [
+    "status",
+    "operation_id"
+  ],
+  "title": "Receipt",
+  "type": "object"
+}

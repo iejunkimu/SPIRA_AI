@@ -1,0 +1,79 @@
+{
+  "name": "effect_after_verification_timeout",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "delayed",
+        "delay": 0.25
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "verify_seconds": 0,
+        "retry": {
+          "max_attempts": 4
+        }
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "MISMATCH"
+    },
+    {
+      "op": "sleep",
+      "seconds": 0.3
+    },
+    {
+      "op": "advance",
+      "seconds": 3
+    },
+    {
+      "op": "assert",
+      "invariant": "I1",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "MISMATCH"
+    },
+    {
+      "op": "assert",
+      "invariant": "I3",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "invariant": "I1",
+      "path": [
+        "world",
+        "mqtt:light",
+        "values",
+        "power"
+      ],
+      "equals": true
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "Observation": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "values": {
+          "additionalProperties": true,
+          "title": "Values",
+          "type": "object"
+        },
+        "revisions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Revisions",
+          "type": "object"
+        },
+        "observed_at": {
+          "title": "Observed At",
+          "type": "number"
+        },
+        "provenance": {
+          "default": "UNKNOWN",
+          "title": "Provenance",
+          "type": "string"
+        },
+        "substrate": {
+          "title": "Substrate",
+          "type": "string"
+        },
+        "available": {
+          "default": true,
+          "title": "Available",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "target",
+        "values",
+        "substrate"
+      ],
+      "title": "Observation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "event_id": {
+      "title": "Event Id",
+      "type": "string"
+    },
+    "type": {
+      "title": "Type",
+      "type": "string"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "at": {
+      "title": "At",
+      "type": "number"
+    },
+    "provenance": {
+      "default": "UNKNOWN",
+      "title": "Provenance",
+      "type": "string"
+    },
+    "substrate": {
+      "title": "Substrate",
+      "type": "string"
+    },
+    "payload": {
+      "additionalProperties": true,
+      "title": "Payload",
+      "type": "object"
+    },
+    "observation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Observation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "event_id",
+    "type",
+    "source",
+    "substrate"
+  ],
+  "title": "Event",
+  "type": "object"
+}

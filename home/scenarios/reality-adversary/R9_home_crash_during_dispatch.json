@@ -1,0 +1,72 @@
+{
+  "name": "R9_home_crash_during_dispatch",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "dispatch",
+        "kind": "command",
+        "stage": "before",
+        "hold": true
+      }
+    },
+    {
+      "op": "submit",
+      "body": {}
+    },
+    {
+      "op": "boundary",
+      "id": "dispatch"
+    },
+    {
+      "op": "process",
+      "action": "kill"
+    },
+    {
+      "op": "release",
+      "id": "dispatch"
+    },
+    {
+      "op": "process",
+      "action": "start"
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "INDETERMINATE"
+    },
+    {
+      "op": "assert",
+      "invariant": "I10",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "INDETERMINATE"
+    },
+    {
+      "op": "assert",
+      "invariant": "I3",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    }
+  ]
+}

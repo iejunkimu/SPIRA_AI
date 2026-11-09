@@ -1,0 +1,53 @@
+{
+  "name": "partial_readback_null",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "omit",
+        "skip": 1,
+        "omit": [
+          "power"
+        ]
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "desired": {
+          "power": true
+        }
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "MISMATCH"
+    },
+    {
+      "op": "assert",
+      "invariant": "I1",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "MISMATCH"
+    }
+  ]
+}

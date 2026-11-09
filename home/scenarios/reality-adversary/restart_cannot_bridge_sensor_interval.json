@@ -1,0 +1,102 @@
+{
+  "name": "restart_cannot_bridge_sensor_interval",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "values": {
+          "humidity": 50
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "trigger": {
+          "type": "state.v1",
+          "condition": {
+            "target": "mqtt:humidity",
+            "property": "humidity",
+            "maximum": 55,
+            "stable_seconds": 5
+          }
+        }
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "advance",
+      "seconds": 2
+    },
+    {
+      "op": "process",
+      "action": "kill"
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "values": {
+          "humidity": 70
+        }
+      }
+    },
+    {
+      "op": "clock_jump",
+      "seconds": 10
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "values": {
+          "humidity": 50
+        }
+      }
+    },
+    {
+      "op": "process",
+      "action": "start"
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "assert",
+      "invariant": "I11",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "WAITING"
+    },
+    {
+      "op": "advance",
+      "seconds": 5
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    }
+  ]
+}

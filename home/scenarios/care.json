@@ -1,0 +1,37 @@
+{
+  "name":"care-and-public-information-v32",
+  "standing":"VIRTUAL_SENSOR_CONFIG_AND_PHONE_FACTS_NOT_VENDOR_API_PROOF",
+  "plan":{
+    "plan_id":"$PLAN","household_id":"h_v32","plan_version":1,"sent_at":"@+0","valid_until":"@+7200",
+    "tasks":[
+      {"task_id":"humidity-care","actions":[{"device":"conditioner","cmd":"maintain","value":"auto_humidity","room":"bedroom"}],"trigger":{"immediate":true},"precheck":["in_use_by_person"],"end":{"condition":{"target":"mqtt:humidity","property":"humidity","minimum":45,"maximum":55,"stable_seconds":20},"after_seconds":3600,"restore":true}},
+      {"task_id":"washer-preset","actions":[{"device":"washer","cmd":"set_course","value":{"course":"delicate","dose":20}}],"trigger":{"time":"@+300"},"precheck":["in_use_by_person"],"end":{"event":"washer.started","source":"washer","after_seconds":3600,"restore":true}},
+      {"task_id":"dryer-warning","actions":[{"device":"phone","cmd":"show_notice","value":["니트는 건조기에서 수축할 수 있어요"]}],"trigger":{"event":"dryer.door_opened","source":"dryer"},"end":{"event":"dryer.door_closed","source":"dryer","restore":true}},
+      {"task_id":"oven-public-guidance","actions":[{"device":"phone","cmd":"show_notice","value":["오븐 설정은 기기에서 직접 확인하세요. 자동 시작하지 않습니다"]}],"trigger":{"time":"@+800"},"end":{"after_seconds":30,"restore":true}}
+    ]
+  },
+  "seed":[
+    {"target":"mqtt:conditioner","values":{"mode":"off","in_use":false}},
+    {"target":"mqtt:humidity","values":{"humidity":70}},
+    {"target":"mqtt:washer","values":{"preset":null,"in_use":false,"consumed":false}},
+    {"target":"mqtt:phone","values":{"notices":[]}}
+  ],
+  "timeline":[
+    {"at":1,"expect":{"device":"mqtt:conditioner","values":{"mode":"auto_humidity"}}},
+    {"at":100,"mutate":{"target":"mqtt:humidity","values":{"humidity":50}}},
+    {"at":110,"mutate":{"target":"mqtt:humidity","values":{"humidity":65}}},
+    {"at":120,"mutate":{"target":"mqtt:humidity","values":{"humidity":50}}},
+    {"at":139,"expect":{"device":"mqtt:conditioner","values":{"mode":"auto_humidity"}}},
+    {"at":140,"expect":{"device":"mqtt:conditioner","values":{"mode":"off"}}},
+    {"at":301,"expect":{"device":"mqtt:washer","values":{"preset":{"course":"delicate","dose":20},"in_use":false}}},
+    {"at":400,"mutate":{"target":"mqtt:washer","values":{"preset":null,"consumed":true,"in_use":true},"provenance":"USER"}},
+    {"at":400,"event":{"event_type":"washer.started","source":"washer","payload":{"by":"user"},"provenance":"USER"}},
+    {"at":401,"expect":{"device":"mqtt:washer","values":{"preset":null,"consumed":true,"in_use":true}}},
+    {"at":600,"event":{"event_type":"dryer.door_opened","source":"dryer"}},
+    {"at":601,"expect":{"device":"mqtt:phone","values":{"notices":["니트는 건조기에서 수축할 수 있어요"]}}},
+    {"at":610,"event":{"event_type":"dryer.door_closed","source":"dryer"}},
+    {"at":611,"expect":{"device":"mqtt:phone","values":{"notices":[]}}},
+    {"at":801,"expect":{"device":"mqtt:phone","values":{"notices":["오븐 설정은 기기에서 직접 확인하세요. 자동 시작하지 않습니다"]}}},
+    {"at":830,"expect":{"device":"mqtt:phone","values":{"notices":[]}}}
+  ]
+}

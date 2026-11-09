@@ -1,0 +1,86 @@
+{
+  "name": "end_while_verification_waits",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "end-verify",
+        "skip": 1,
+        "stage": "before",
+        "hold": true
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "boundary",
+      "id": "end-verify"
+    },
+    {
+      "op": "end",
+      "async": true
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": true
+        }
+      }
+    },
+    {
+      "op": "release",
+      "id": "end-verify"
+    },
+    {
+      "op": "join"
+    },
+    {
+      "op": "assert",
+      "invariant": "I12",
+      "path": [
+        "world",
+        "mqtt:light",
+        "values",
+        "power"
+      ],
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "invariant": "I5",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    }
+  ]
+}

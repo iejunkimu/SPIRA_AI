@@ -1,0 +1,87 @@
+{
+  "name": "authority_during_verification",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "verify",
+        "skip": 1,
+        "hold": true
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "boundary",
+      "id": "verify"
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": true
+        }
+      }
+    },
+    {
+      "op": "release",
+      "id": "verify"
+    },
+    {
+      "op": "sleep",
+      "seconds": 0.3
+    },
+    {
+      "op": "end"
+    },
+    {
+      "op": "assert",
+      "invariant": "I6",
+      "path": [
+        "world",
+        "mqtt:light",
+        "values",
+        "power"
+      ],
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "invariant": "I5",
+      "path": [
+        "tasks",
+        "a",
+        "restore_status"
+      ],
+      "equals": "RESTORE_SKIPPED_OVERRIDE"
+    }
+  ]
+}

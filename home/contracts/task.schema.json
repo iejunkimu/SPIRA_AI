@@ -1,0 +1,490 @@
+{
+  "$defs": {
+    "End": {
+      "additionalProperties": false,
+      "properties": {
+        "trigger": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Trigger"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "alternatives": {
+          "items": {
+            "$ref": "#/$defs/Trigger"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "after_seconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 1209600,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After Seconds"
+        },
+        "completion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StateCondition"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "End",
+      "type": "object"
+    },
+    "Precheck": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "not_in_use",
+            "not_already_done",
+            "quiet_hours",
+            "room"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "property": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Property"
+        },
+        "value": {
+          "default": null,
+          "title": "Value"
+        },
+        "timezone": {
+          "default": "Asia/Seoul",
+          "title": "Timezone",
+          "type": "string"
+        },
+        "quiet_start": {
+          "default": 22,
+          "maximum": 23,
+          "minimum": 0,
+          "title": "Quiet Start",
+          "type": "integer"
+        },
+        "quiet_end": {
+          "default": 8,
+          "maximum": 23,
+          "minimum": 0,
+          "title": "Quiet End",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Precheck",
+      "type": "object"
+    },
+    "Retry": {
+      "additionalProperties": false,
+      "properties": {
+        "max_attempts": {
+          "default": 1,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Max Attempts",
+          "type": "integer"
+        },
+        "backoff_seconds": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 60,
+          "title": "Backoff Seconds",
+          "type": "number"
+        }
+      },
+      "title": "Retry",
+      "type": "object"
+    },
+    "StateCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "property": {
+          "title": "Property",
+          "type": "string"
+        },
+        "equals": {
+          "default": null,
+          "title": "Equals"
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum"
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum"
+        },
+        "stable_seconds": {
+          "default": 0,
+          "maximum": 259200,
+          "minimum": 0,
+          "title": "Stable Seconds",
+          "type": "number"
+        }
+      },
+      "required": [
+        "target",
+        "property"
+      ],
+      "title": "StateCondition",
+      "type": "object"
+    },
+    "Trigger": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "default": "immediate",
+          "enum": [
+            "immediate",
+            "at",
+            "raw_event.v1",
+            "first_guest_arrival.v1",
+            "package_brought_in.v1",
+            "event_end.v1",
+            "departed.v1",
+            "returned.v1",
+            "door_cycle.v1",
+            "state.v1"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At"
+        },
+        "event_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Type"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "payload_equals": {
+          "additionalProperties": true,
+          "title": "Payload Equals",
+          "type": "object"
+        },
+        "bell_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bell Source"
+        },
+        "contact_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Contact Source"
+        },
+        "camera_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Camera Source"
+        },
+        "window_seconds": {
+          "default": 60,
+          "exclusiveMinimum": 0,
+          "maximum": 300,
+          "title": "Window Seconds",
+          "type": "number"
+        },
+        "quiet_seconds": {
+          "default": 1800,
+          "exclusiveMinimum": 0,
+          "maximum": 86400,
+          "title": "Quiet Seconds",
+          "type": "number"
+        },
+        "fallback_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fallback At"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StateCondition"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Trigger",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "episode_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Episode Id",
+      "type": "string"
+    },
+    "plan_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Plan Id",
+      "type": "string"
+    },
+    "plan_version": {
+      "minimum": 1,
+      "title": "Plan Version",
+      "type": "integer"
+    },
+    "task_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Task Id",
+      "type": "string"
+    },
+    "line_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Line Id"
+    },
+    "logical_command": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Logical Command"
+    },
+    "target": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Target",
+      "type": "string"
+    },
+    "family": {
+      "default": "SET_STATE",
+      "enum": [
+        "SET_STATE",
+        "CONFIGURE_FOR_NEXT_USE",
+        "RUN_JOB",
+        "MAINTAIN_CONDITION",
+        "PRESENT_INFORMATION",
+        "STOP",
+        "ABSTAIN"
+      ],
+      "title": "Family",
+      "type": "string"
+    },
+    "desired": {
+      "additionalProperties": true,
+      "maxProperties": 32,
+      "title": "Desired",
+      "type": "object"
+    },
+    "trigger": {
+      "$ref": "#/$defs/Trigger"
+    },
+    "valid_from": {
+      "default": 0,
+      "title": "Valid From",
+      "type": "number"
+    },
+    "valid_until": {
+      "title": "Valid Until",
+      "type": "number"
+    },
+    "preconditions": {
+      "additionalProperties": true,
+      "title": "Preconditions",
+      "type": "object"
+    },
+    "prechecks": {
+      "items": {
+        "$ref": "#/$defs/Precheck"
+      },
+      "title": "Prechecks",
+      "type": "array"
+    },
+    "temporary": {
+      "default": false,
+      "title": "Temporary",
+      "type": "boolean"
+    },
+    "restore": {
+      "default": false,
+      "title": "Restore",
+      "type": "boolean"
+    },
+    "policy": {
+      "default": "ALLOW",
+      "enum": [
+        "ALLOW",
+        "PROHIBITED"
+      ],
+      "title": "Policy",
+      "type": "string"
+    },
+    "verify_seconds": {
+      "default": 1,
+      "maximum": 30,
+      "minimum": 0,
+      "title": "Verify Seconds",
+      "type": "number"
+    },
+    "end": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/End"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "retry": {
+      "$ref": "#/$defs/Retry"
+    }
+  },
+  "required": [
+    "episode_id",
+    "plan_id",
+    "plan_version",
+    "task_id",
+    "target",
+    "valid_until"
+  ],
+  "title": "Task",
+  "type": "object"
+}

@@ -1,0 +1,73 @@
+{
+  "name": "R2_manual_change_then_end",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false
+        }
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "OVERRIDDEN"
+    },
+    {
+      "op": "end"
+    },
+    {
+      "op": "assert",
+      "invariant": "I5",
+      "path": [
+        "world",
+        "mqtt:light",
+        "values",
+        "power"
+      ],
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "invariant": "I12",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    }
+  ]
+}

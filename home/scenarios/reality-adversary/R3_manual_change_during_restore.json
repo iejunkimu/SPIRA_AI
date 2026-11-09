@@ -1,0 +1,90 @@
+{
+  "name": "R3_manual_change_during_restore",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "desired": {
+          "brightness": 80
+        },
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "restore",
+        "kind": "command",
+        "stage": "before",
+        "hold": true
+      }
+    },
+    {
+      "op": "end",
+      "async": true
+    },
+    {
+      "op": "boundary",
+      "id": "restore"
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "brightness": 25
+        }
+      }
+    },
+    {
+      "op": "release",
+      "id": "restore"
+    },
+    {
+      "op": "join"
+    },
+    {
+      "op": "assert",
+      "invariant": "I6",
+      "path": [
+        "tasks",
+        "a",
+        "restore_status"
+      ],
+      "equals": "RESTORE_SKIPPED_OVERRIDE"
+    },
+    {
+      "op": "assert",
+      "invariant": "I12",
+      "path": [
+        "world",
+        "mqtt:light",
+        "values",
+        "brightness"
+      ],
+      "equals": 25
+    }
+  ]
+}

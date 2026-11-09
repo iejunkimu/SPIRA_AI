@@ -1,0 +1,52 @@
+{
+  "name": "null_desired_omitted_from_read",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:washer",
+        "mode": "normal",
+        "values": {
+          "preset": {
+            "course": "normal",
+            "dose": 25
+          }
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "null",
+        "target": "mqtt:washer",
+        "skip": 1,
+        "omit": [
+          "preset"
+        ]
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "target": "mqtt:washer",
+        "family": "CONFIGURE_FOR_NEXT_USE",
+        "desired": {
+          "preset": null
+        }
+      }
+    },
+    {
+      "op": "settle"
+    },
+    {
+      "op": "assert",
+      "invariant": "I1",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "MISMATCH"
+    }
+  ]
+}

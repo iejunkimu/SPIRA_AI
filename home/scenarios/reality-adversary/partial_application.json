@@ -1,0 +1,54 @@
+{
+  "name": "partial_application",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "partial",
+        "kind": "command",
+        "partial": [
+          "power"
+        ]
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "desired": {
+          "power": true,
+          "brightness": 80
+        }
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "MISMATCH"
+    },
+    {
+      "op": "assert",
+      "invariant": "I9",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "MISMATCH"
+    }
+  ]
+}

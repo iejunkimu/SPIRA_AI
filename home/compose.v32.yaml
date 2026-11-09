@@ -1,0 +1,33 @@
+name: spira-v32
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    volumes: ["./deploy/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"]
+    restart: unless-stopped
+  service:
+    build: .
+    command: ["uvicorn", "spira_home.testbed.service_fixture:app", "--host", "0.0.0.0", "--port", "8732"]
+    environment: {SERVICE_FIXTURE_DB: "/state/service.db"}
+    ports: ["127.0.0.1:8732:8732"]
+    volumes: ["v32-service:/state"]
+    restart: unless-stopped
+  world:
+    build: .
+    command: ["uvicorn", "spira_home.testbed.world:app", "--host", "0.0.0.0", "--port", "8731"]
+    environment: {MQTT_HOST: mqtt, MQTT_PORT: "18883", MQTT_PREFIX: "spira/v32", WORLD_DB: "/state/world.db", WORLD_CLOCK: "1", WORLD_START: "1793880000"}
+    ports: ["127.0.0.1:8731:8731"]
+    volumes: ["v32-world:/state"]
+    restart: unless-stopped
+    depends_on: [mqtt]
+  home:
+    build: .
+    command: ["uvicorn", "spira_home.app:app", "--host", "0.0.0.0", "--port", "8730"]
+    environment: {MQTT_HOST: mqtt, MQTT_PORT: "18883", MQTT_PREFIX: "spira/v32", HOME_DB: "/state/home.db", HOME_TEST_MODE: "1", HOME_HOUSEHOLD_ID: "h_v32", SERVICE_URL: "http://service:8732", WORLD_URL: "http://world:8731"}
+    ports: ["127.0.0.1:8730:8730"]
+    volumes: ["v32-home:/state"]
+    restart: unless-stopped
+    depends_on: [mqtt, world, service]
+volumes:
+  v32-home:
+  v32-world:
+  v32-service:

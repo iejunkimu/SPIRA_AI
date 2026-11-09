@@ -1,0 +1,98 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "target": {
+      "title": "Target",
+      "type": "string"
+    },
+    "writable": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Writable",
+      "type": "array"
+    },
+    "families": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Families",
+      "type": "array"
+    },
+    "available": {
+      "default": true,
+      "title": "Available",
+      "type": "boolean"
+    },
+    "conditional_write": {
+      "default": false,
+      "title": "Conditional Write",
+      "type": "boolean"
+    },
+    "substrate": {
+      "title": "Substrate",
+      "type": "string"
+    },
+    "device_type": {
+      "default": "generic",
+      "title": "Device Type",
+      "type": "string"
+    },
+    "room": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Room"
+    },
+    "value_schema": {
+      "additionalProperties": true,
+      "title": "Value Schema",
+      "type": "object"
+    },
+    "events": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "commands": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Commands",
+      "type": "array"
+    },
+    "assumption": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Assumption"
+    },
+    "noisy": {
+      "default": false,
+      "title": "Noisy",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "target",
+    "writable",
+    "substrate"
+  ],
+  "title": "Capability",
+  "type": "object"
+}

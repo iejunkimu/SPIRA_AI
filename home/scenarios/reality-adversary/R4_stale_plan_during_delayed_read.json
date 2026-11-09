@@ -1,0 +1,56 @@
+{
+  "name": "R4_stale_plan_during_delayed_read",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "pre-read",
+        "hold": true,
+        "stage": "before"
+      }
+    },
+    {
+      "op": "submit",
+      "body": {}
+    },
+    {
+      "op": "boundary",
+      "id": "pre-read"
+    },
+    {
+      "op": "supersede"
+    },
+    {
+      "op": "release",
+      "id": "pre-read"
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "SUPERSEDED"
+    },
+    {
+      "op": "assert",
+      "invariant": "I4",
+      "path": [
+        "commands"
+      ],
+      "equals": 0
+    }
+  ]
+}

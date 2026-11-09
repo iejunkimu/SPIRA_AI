@@ -1,0 +1,9 @@
+.venv
+.git
+.local
+state
+__pycache__
+**/node_modules
+**/.matter
+**/*.egg-info
+document

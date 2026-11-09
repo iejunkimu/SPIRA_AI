@@ -1,0 +1,75 @@
+{
+  "name": "departure_return_trigger_context",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "temporary": true,
+        "restore": true,
+        "trigger": {
+          "type": "raw_event.v1",
+          "source": "entry",
+          "event_type": "doorlock.locked"
+        },
+        "end": {
+          "trigger": {
+            "type": "returned.v1",
+            "contact_source": "entry",
+            "at": 0
+          }
+        }
+      }
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "doorlock.locked",
+        "source": "entry"
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "advance",
+      "seconds": 1
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "doorlock.opened",
+        "source": "entry"
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "assert",
+      "invariant": "I12",
+      "path": [
+        "tasks",
+        "a",
+        "restore_status"
+      ],
+      "equals": "RESTORED"
+    }
+  ]
+}

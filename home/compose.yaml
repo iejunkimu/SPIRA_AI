@@ -1,0 +1,35 @@
+name: spira-home
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports: ["127.0.0.1:18883:18883"]
+    volumes: ["./deploy/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"]
+  world:
+    build: .
+    command: ["uvicorn", "spira_home.testbed.world:app", "--host", "0.0.0.0", "--port", "8711"]
+    environment: {MQTT_HOST: mqtt}
+    ports: ["127.0.0.1:8711:8711"]
+    volumes: ["world-state:/state"]
+    restart: unless-stopped
+    depends_on: [mqtt]
+  home:
+    build: .
+    environment:
+      MQTT_HOST: mqtt
+      HOME_TOKEN: ${HOME_TOKEN:-}
+      SERVICE_RESULTS_URL: ${SERVICE_RESULTS_URL:-}
+    ports: ["127.0.0.1:8710:8710"]
+    volumes: ["home-state:/state"]
+    restart: unless-stopped
+    depends_on: [mqtt, world]
+  ha:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    profiles: [ha]
+    network_mode: host
+    volumes: ["ha-state:/config"]
+    restart: unless-stopped
+volumes:
+  home-state:
+  world-state:
+  ha-state:

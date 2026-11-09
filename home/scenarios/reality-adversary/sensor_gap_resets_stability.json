@@ -1,0 +1,104 @@
+{
+  "name": "sensor_gap_resets_stability",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "values": {
+          "humidity": 50
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "trigger": {
+          "type": "state.v1",
+          "condition": {
+            "target": "mqtt:humidity",
+            "property": "humidity",
+            "maximum": 55,
+            "stable_seconds": 5
+          }
+        }
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "advance",
+      "seconds": 2
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "mode": "readback_unavailable"
+      }
+    },
+    {
+      "op": "advance",
+      "seconds": 4
+    },
+    {
+      "op": "assert",
+      "invariant": "I11",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "WAITING"
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "mode": "normal"
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "advance",
+      "seconds": 4
+    },
+    {
+      "op": "assert",
+      "invariant": "I11",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "WAITING"
+    },
+    {
+      "op": "advance",
+      "seconds": 1
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    }
+  ]
+}

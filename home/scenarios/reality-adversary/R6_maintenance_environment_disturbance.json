@@ -1,0 +1,125 @@
+{
+  "name": "R6_maintenance_environment_disturbance",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "values": {
+          "humidity": 70
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:conditioner",
+        "mode": "normal",
+        "values": {
+          "mode": "off",
+          "in_use": false
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "target": "mqtt:conditioner",
+        "family": "MAINTAIN_CONDITION",
+        "desired": {
+          "mode": "auto_humidity"
+        },
+        "end": {
+          "after_seconds": 60,
+          "completion": {
+            "target": "mqtt:humidity",
+            "property": "humidity",
+            "maximum": 55,
+            "stable_seconds": 5
+          }
+        },
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "dynamics",
+      "sensor": "mqtt:humidity",
+      "property": "humidity",
+      "actuator": "mqtt:conditioner",
+      "actuator_property": "mode",
+      "active_value": "auto_humidity",
+      "model": {
+        "value": 57,
+        "actuator_effect": -3,
+        "drift": 0.1,
+        "noise": 0.1,
+        "inertia": 0.3,
+        "seed": 6
+      },
+      "disturbances": [
+        0,
+        0,
+        15,
+        0,
+        0
+      ]
+    },
+    {
+      "op": "assert",
+      "invariant": "I11",
+      "path": [
+        "tasks",
+        "a",
+        "restore_status"
+      ],
+      "equals": null
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "values": {
+          "humidity": 50
+        }
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "advance",
+      "seconds": 5
+    },
+    {
+      "op": "assert",
+      "invariant": "I6",
+      "path": [
+        "tasks",
+        "a",
+        "restore_status"
+      ],
+      "equals": "RESTORED"
+    },
+    {
+      "op": "assert",
+      "invariant": "I12",
+      "path": [
+        "world",
+        "mqtt:conditioner",
+        "values",
+        "mode"
+      ],
+      "equals": "off"
+    }
+  ]
+}

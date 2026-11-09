@@ -1,0 +1,57 @@
+{
+  "name":"birthday-v32-lg-assumptions",
+  "standing":"VIRTUAL_LG_ASSUMPTIONS_NOT_PHYSICAL",
+  "anchor":"thursday_21",
+  "plan":{
+    "plan_id":"$PLAN","household_id":"h_v32","plan_version":1,"sent_at":"@+0","valid_until":"@+172800",
+    "schedule":{"start":"@+147600","end":"@+158400"},
+    "bindings":{"doorbell":"doorbell_01","door":"doorlock_01","camera":"sim_camera"},
+    "tasks":[
+      {"task_id":"care","way":"배송 물품 관리","actions":[{"device":"fridge_01","cmd":"show_notice","value":["딸기: 씻지 말고 냉장, 꾸미기 전에 씻기","휘핑크림: 냉장 보관"]}],"trigger":{"event":"package.brought_in"},"end":{"event":"fridge.door_closed","restore":true}},
+      {"task_id":"cleanup","actions":[{"device":"robot_01","cmd":"clean","value":{"room":"living"}}],"trigger":{"time":"@+145800"},"precheck":["still_confirmed","in_use_by_person","already_done_by_person","quiet_hours"],"end":{"after_seconds":1800}},
+      {"task_id":"safety","actions":[{"device":"induction_01","cmd":"child_lock"},{"device":"purifier_water_01","cmd":"hot_water_lock"},{"device":"plug_kettle","cmd":"off"},{"device":"plug_iron","cmd":"off"}],"trigger":{"time":"@+145800"},"precheck":["still_confirmed","in_use_by_person"],"end":{"event":"event_end","restore":true}},
+      {"task_id":"mood","actions":[{"device":"tv_01","cmd":"gallery_scene","value":"princess-colors"},{"device":"tv_01","cmd":"play_music_app","value":"party-music-reference"},{"device":"light_living","cmd":"on"},{"device":"light_living","cmd":"color","value":"pink"}],"trigger":{"event":"guest_arrived","first_only":true},"precheck":["in_use_by_person"],"end":{"event":"event_end","restore":true}},
+      {"task_id":"oven","actions":[{"device":"oven_01","cmd":"set_cook_standby","value":{"mode":"bake","temp_c":170,"minutes":20}}],"trigger":{"time":"@+147600"},"precheck":["in_use_by_person"],"end":{"event":"oven.started_by_user","restore":true}}
+    ]
+  },
+  "seed":[
+    {"target":"mqtt:fridge_01","values":{"notices":[],"door_open":false}},
+    {"target":"mqtt:robot_01","values":{"run_state":"idle","job_id":null,"room":"living","in_use":false,"done_today":false}},
+    {"target":"mqtt:light_living","values":{"power":false,"brightness":40,"color":"warm","in_use":false}},
+    {"target":"mqtt:tv_01","values":{"power":false,"scene":null,"music":null,"in_use":false}},
+    {"target":"mqtt:induction_01","values":{"child_lock":false,"in_use":false}},
+    {"target":"mqtt:purifier_water_01","values":{"hot_water_lock":false,"in_use":false}},
+    {"target":"mqtt:plug_kettle","values":{"power":true,"in_use":false}},
+    {"target":"mqtt:plug_iron","values":{"power":true,"in_use":false}},
+    {"target":"mqtt:oven_01","values":{"preset":null,"in_use":false,"consumed":false}}
+  ],
+  "timeline":[
+    {"at":81000,"event":{"event_type":"camera.package_removed","source":"sim_camera","payload":{"removed_count":2,"remaining_count":0}}},
+    {"at":81029,"event":{"event_type":"doorlock.opened","source":"doorlock_01"}},
+    {"at":81030,"expect":{"device":"mqtt:fridge_01","values":{"notices":["딸기: 씻지 말고 냉장, 꾸미기 전에 씻기","휘핑크림: 냉장 보관"]}}},
+    {"at":81160,"event":{"event_type":"fridge.door_opened","source":"fridge_01"}},
+    {"at":81180,"event":{"event_type":"fridge.door_closed","source":"fridge_01"}},
+    {"at":81181,"expect":{"device":"mqtt:fridge_01","values":{"notices":[]}}},
+    {"at":145801,"expect":{"device":"mqtt:robot_01","values":{"run_state":"running"}}},
+    {"at":145801,"expect":{"device":"mqtt:plug_kettle","values":{"power":false}}},
+    {"at":145801,"expect":{"device":"mqtt:oven_01","values":{"preset":null,"in_use":false}}},
+    {"at":145801,"expect":{"device":"mqtt:plug_router","values":{"power":true}}},
+    {"at":145891,"expect_line":{"line":"cleanup","status":"COMPLETED"}},
+    {"at":147130,"event":{"event_type":"doorbell.pressed","source":"doorbell_01"}},
+    {"at":147151,"event":{"event_type":"doorlock.opened","source":"doorlock_01"}},
+    {"at":147152,"expect":{"device":"mqtt:light_living","values":{"power":true,"color":"pink"}}},
+    {"at":147152,"expect":{"device":"mqtt:tv_01","values":{"power":true,"scene":"princess-colors","music":"party-music-reference"}}},
+    {"at":147601,"expect":{"device":"mqtt:oven_01","values":{"preset":{"mode":"bake","temp_c":170,"minutes":20},"in_use":false}}},
+    {"at":148800,"mutate":{"target":"mqtt:oven_01","values":{"preset":null,"in_use":true,"consumed":true},"provenance":"USER"}},
+    {"at":148800,"event":{"event_type":"oven.started","source":"oven_01","payload":{"by":"user"},"provenance":"USER"}},
+    {"at":150300,"mutate":{"target":"mqtt:oven_01","values":{"in_use":false},"provenance":"USER"}},
+    {"at":157200,"mutate":{"target":"mqtt:tv_01","values":{"power":false,"scene":null,"music":null},"provenance":"USER"}},
+    {"at":159600,"event":{"event_type":"doorlock.locked","source":"doorlock_01"}},
+    {"at":161400,"expect":{"device":"mqtt:light_living","values":{"power":false,"color":"warm"}}},
+    {"at":161400,"expect":{"device":"mqtt:tv_01","values":{"power":false,"scene":null,"music":null}}},
+    {"at":161400,"expect":{"device":"mqtt:induction_01","values":{"child_lock":false}}},
+    {"at":161400,"expect":{"device":"mqtt:purifier_water_01","values":{"hot_water_lock":false}}},
+    {"at":161400,"expect":{"device":"mqtt:plug_kettle","values":{"power":true}}},
+    {"at":161400,"expect":{"device":"mqtt:plug_iron","values":{"power":true}}}
+  ]
+}

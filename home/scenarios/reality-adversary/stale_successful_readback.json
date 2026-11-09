@@ -1,0 +1,61 @@
+{
+  "name": "stale_successful_readback",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": true
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "stale",
+        "skip": 1,
+        "stale": true
+      }
+    },
+    {
+      "op": "advance",
+      "seconds": 1
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "unchanged"
+      }
+    },
+    {
+      "op": "submit",
+      "body": {}
+    },
+    {
+      "op": "settle"
+    },
+    {
+      "op": "assert",
+      "invariant": "I1",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "UNVERIFIABLE"
+    }
+  ]
+}

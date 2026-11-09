@@ -1,0 +1,84 @@
+{
+  "name": "preadmission_same_timestamp_fact",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "contact.opened",
+        "source": "old-door",
+        "event_id": "before-admission"
+      }
+    },
+    {
+      "op": "sleep",
+      "seconds": 0.1
+    },
+    {
+      "op": "submit",
+      "body": {
+        "trigger": {
+          "type": "raw_event.v1",
+          "event_type": "contact.opened",
+          "source": "old-door"
+        }
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "assert",
+      "invariant": "I8",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "WAITING"
+    },
+    {
+      "op": "assert",
+      "invariant": "I4",
+      "path": [
+        "commands"
+      ],
+      "equals": 0
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "contact.opened",
+        "source": "old-door",
+        "event_id": "after-admission"
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "assert",
+      "invariant": "I8",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    }
+  ]
+}

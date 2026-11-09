@@ -1,0 +1,261 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "title": "Device",
+          "type": "string"
+        },
+        "cmd": {
+          "title": "Cmd",
+          "type": "string"
+        },
+        "value": {
+          "default": null,
+          "title": "Value"
+        },
+        "room": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Room"
+        }
+      },
+      "required": [
+        "device",
+        "cmd"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "PlanTask": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "status": {
+          "default": "confirmed",
+          "enum": [
+            "confirmed",
+            "cancelled",
+            "disabled"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "way": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Way"
+        },
+        "need": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Need"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "trigger": {
+          "additionalProperties": true,
+          "title": "Trigger",
+          "type": "object"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "precheck": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Precheck",
+          "type": "array"
+        },
+        "deadline": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline"
+        },
+        "retry": {
+          "$ref": "#/$defs/Retry"
+        },
+        "policy": {
+          "default": "ALLOW",
+          "enum": [
+            "ALLOW",
+            "PROHIBITED"
+          ],
+          "title": "Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id"
+      ],
+      "title": "PlanTask",
+      "type": "object"
+    },
+    "Retry": {
+      "additionalProperties": false,
+      "properties": {
+        "max_attempts": {
+          "default": 1,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Max Attempts",
+          "type": "integer"
+        },
+        "backoff_seconds": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 60,
+          "title": "Backoff Seconds",
+          "type": "number"
+        }
+      },
+      "title": "Retry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "plan_id": {
+      "title": "Plan Id",
+      "type": "string"
+    },
+    "household_id": {
+      "title": "Household Id",
+      "type": "string"
+    },
+    "plan_version": {
+      "minimum": 1,
+      "title": "Plan Version",
+      "type": "integer"
+    },
+    "sent_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Sent At"
+    },
+    "episode_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Episode Id"
+    },
+    "tasks": {
+      "items": {
+        "$ref": "#/$defs/PlanTask"
+      },
+      "maxItems": 200,
+      "title": "Tasks",
+      "type": "array"
+    },
+    "cancelled": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Cancelled",
+      "type": "array"
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid Until"
+    },
+    "timezone": {
+      "default": "Asia/Seoul",
+      "title": "Timezone",
+      "type": "string"
+    },
+    "schedule": {
+      "additionalProperties": true,
+      "title": "Schedule",
+      "type": "object"
+    },
+    "bindings": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Bindings",
+      "type": "object"
+    }
+  },
+  "required": [
+    "plan_id",
+    "household_id",
+    "plan_version",
+    "sent_at"
+  ],
+  "title": "Plan",
+  "type": "object"
+}

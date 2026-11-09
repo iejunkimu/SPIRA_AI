@@ -1,0 +1,103 @@
+{
+  "name": "late_duplicate_out_of_order_events",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "trigger": {
+          "type": "raw_event.v1",
+          "source": "door",
+          "event_type": "contact.opened"
+        }
+      }
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "contact.opened",
+        "source": "door",
+        "offset": -1,
+        "event_id": "old"
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "assert",
+      "invariant": "I8",
+      "path": [
+        "commands"
+      ],
+      "equals": 0
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "contact.opened",
+        "source": "door",
+        "event_id": "current"
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "contact.opened",
+        "source": "door",
+        "event_id": "current"
+      }
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "contact.opened",
+        "source": "door",
+        "offset": -2,
+        "event_id": "older"
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "assert",
+      "invariant": "I8",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "invariant": "I7",
+      "path": [
+        "tasks",
+        "a",
+        "result",
+        "observation",
+        "provenance"
+      ],
+      "equals": "SPIRA"
+    }
+  ]
+}

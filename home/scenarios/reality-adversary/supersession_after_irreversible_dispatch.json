@@ -1,0 +1,73 @@
+{
+  "name": "supersession_after_irreversible_dispatch",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "already-sent",
+        "kind": "command",
+        "stage": "before",
+        "hold": true
+      }
+    },
+    {
+      "op": "submit",
+      "body": {}
+    },
+    {
+      "op": "boundary",
+      "id": "already-sent"
+    },
+    {
+      "op": "supersede"
+    },
+    {
+      "op": "release",
+      "id": "already-sent"
+    },
+    {
+      "op": "settle"
+    },
+    {
+      "op": "assert",
+      "invariant": "I4",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "assert",
+      "invariant": "I4",
+      "path": [
+        "commands"
+      ],
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "invariant": "I1",
+      "path": [
+        "world",
+        "mqtt:light",
+        "values",
+        "power"
+      ],
+      "equals": true
+    }
+  ]
+}

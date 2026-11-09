@@ -1,0 +1,87 @@
+{
+  "name": "job_replacement_and_old_completion",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:robot_01",
+        "mode": "normal",
+        "values": {
+          "run_state": "idle",
+          "job_id": null,
+          "done_today": false
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "target": "mqtt:robot_01",
+        "family": "RUN_JOB",
+        "desired": {
+          "run_state": "running",
+          "room": "living"
+        },
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "RUNNING"
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:robot_01",
+        "values": {
+          "run_state": "running",
+          "job_id": "external-job"
+        }
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "OVERRIDDEN"
+    },
+    {
+      "op": "advance",
+      "seconds": 95
+    },
+    {
+      "op": "end"
+    },
+    {
+      "op": "assert",
+      "invariant": "I5",
+      "path": [
+        "world",
+        "mqtt:robot_01",
+        "values",
+        "job_id"
+      ],
+      "equals": "external-job"
+    },
+    {
+      "op": "assert",
+      "invariant": "I12",
+      "path": [
+        "world",
+        "mqtt:robot_01",
+        "values",
+        "run_state"
+      ],
+      "equals": "running"
+    }
+  ]
+}

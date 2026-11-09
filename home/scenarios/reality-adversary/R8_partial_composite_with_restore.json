@@ -1,0 +1,147 @@
+{
+  "name": "R8_partial_composite_with_restore",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:plug",
+        "mode": "offline",
+        "values": {
+          "power": false
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "line_id": "group",
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "submit",
+      "label": "b",
+      "body": {
+        "target": "mqtt:plug",
+        "line_id": "group"
+      }
+    },
+    {
+      "op": "submit",
+      "label": "c",
+      "body": {
+        "target": "mqtt:light_living",
+        "desired": {
+          "power": true
+        },
+        "line_id": "group",
+        "temporary": true,
+        "restore": true
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "b",
+        "status"
+      ],
+      "equals": "UNAVAILABLE"
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "c",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false
+        }
+      }
+    },
+    {
+      "op": "wait",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "OVERRIDDEN"
+    },
+    {
+      "op": "assert",
+      "invariant": "I9",
+      "path": [
+        "tasks",
+        "b",
+        "status"
+      ],
+      "equals": "UNAVAILABLE"
+    },
+    {
+      "op": "assert",
+      "invariant": "I9",
+      "path": [
+        "tasks",
+        "c",
+        "status"
+      ],
+      "equals": "VERIFIED"
+    },
+    {
+      "op": "summary",
+      "line": "group",
+      "equals": "PARTIAL"
+    },
+    {
+      "op": "end"
+    },
+    {
+      "op": "assert",
+      "invariant": "I12",
+      "path": [
+        "world",
+        "mqtt:light",
+        "values",
+        "power"
+      ],
+      "equals": false
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:plug",
+        "mode": "normal"
+      }
+    }
+  ]
+}

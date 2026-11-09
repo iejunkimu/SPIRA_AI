@@ -1,0 +1,24 @@
+{
+  "name":"departure-return-v32",
+  "standing":"VIRTUAL_RAW_DOOR_FACTS_NO_OCCUPANCY_INFERENCE",
+  "plan":{
+    "plan_id":"$PLAN","household_id":"h_v32","plan_version":1,"sent_at":"@+0","valid_until":"@+3600",
+    "schedule":{"start":"@+60"},"bindings":{"door":"doorlock_01"},
+    "tasks":[
+      {"task_id":"depart","actions":[{"device":"plug_kettle","cmd":"off"}],"trigger":{"event":"departed"},"end":{"event":"returned","restore":true}},
+      {"task_id":"return","actions":[{"device":"light_living","cmd":"on"}],"trigger":{"event":"returned"},"end":{"after_seconds":30,"restore":true}}
+    ]
+  },
+  "seed":[{"target":"mqtt:plug_kettle","values":{"power":true,"in_use":false}},{"target":"mqtt:light_living","values":{"power":false,"brightness":40,"color":"warm","in_use":false}}],
+  "timeline":[
+    {"at":40,"event":{"event_type":"doorlock.opened","source":"doorlock_01"}},
+    {"at":50,"event":{"event_type":"doorlock.locked","source":"doorlock_01"}},
+    {"at":61,"expect":{"device":"mqtt:plug_kettle","values":{"power":true}}},
+    {"at":70,"event":{"event_type":"doorlock.locked","source":"doorlock_01"}},
+    {"at":71,"expect":{"device":"mqtt:plug_kettle","values":{"power":false}}},
+    {"at":120,"event":{"event_type":"doorlock.opened","source":"doorlock_01"}},
+    {"at":121,"expect":{"device":"mqtt:plug_kettle","values":{"power":true}}},
+    {"at":121,"expect":{"device":"mqtt:light_living","values":{"power":true}}},
+    {"at":150,"expect":{"device":"mqtt:light_living","values":{"power":false}}}
+  ]
+}

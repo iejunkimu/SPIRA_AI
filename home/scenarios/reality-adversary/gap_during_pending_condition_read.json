@@ -1,0 +1,87 @@
+{
+  "name": "gap_during_pending_condition_read",
+  "steps": [
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:light",
+        "mode": "normal",
+        "values": {
+          "power": false,
+          "brightness": 10
+        }
+      }
+    },
+    {
+      "op": "mutate",
+      "body": {
+        "target": "mqtt:humidity",
+        "values": {
+          "humidity": 50
+        }
+      }
+    },
+    {
+      "op": "submit",
+      "body": {
+        "trigger": {
+          "type": "state.v1",
+          "condition": {
+            "target": "mqtt:humidity",
+            "property": "humidity",
+            "maximum": 55,
+            "stable_seconds": 5
+          }
+        }
+      }
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "advance",
+      "seconds": 3
+    },
+    {
+      "op": "fault",
+      "body": {
+        "id": "condition",
+        "target": "mqtt:humidity",
+        "stage": "before",
+        "hold": true
+      }
+    },
+    {
+      "op": "boundary",
+      "id": "condition"
+    },
+    {
+      "op": "event",
+      "body": {
+        "type": "observation.gap",
+        "source": "mqtt"
+      }
+    },
+    {
+      "op": "clock_jump",
+      "seconds": 2
+    },
+    {
+      "op": "release",
+      "id": "condition"
+    },
+    {
+      "op": "tick"
+    },
+    {
+      "op": "assert",
+      "invariant": "I11",
+      "path": [
+        "tasks",
+        "a",
+        "status"
+      ],
+      "equals": "WAITING"
+    }
+  ]
+}

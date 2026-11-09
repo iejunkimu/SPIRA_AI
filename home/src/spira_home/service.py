@@ -1,4 +1,8 @@
-"""Durable Home-side adapter for the actual Settle 3.2 hub REST boundaries."""
+"""Service transport for C-1 plan pull, C-2 inventory, and C-3/C-4 outboxes.
+
+`bridge.py` translates wire data. This module owns HTTP polling, delivery,
+and retry; the runtime still owns plan admission and execution.
+"""
 import asyncio
 import json
 import logging

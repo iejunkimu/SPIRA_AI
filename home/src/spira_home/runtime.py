@@ -1,3 +1,5 @@
+"""Home authority, local scheduling, execution, and reconciliation."""
+
 import asyncio
 import json
 import time
@@ -28,7 +30,9 @@ class Conflict(ValueError):
 
 
 class Runtime:
+    """Own Home execution truth; connectors own observations of the world."""
     def __init__(self, db: str, connectors: dict, clock=None):
+        """Recover durable work before any new tick or connector event can run."""
         self.store = Store(db)
         self.connectors = connectors
         self.clock = clock or Clock()
@@ -57,7 +61,10 @@ class Runtime:
             raise Unavailable('connector not configured: '+prefix)
         return self.connectors[prefix]
 
+    # Plan and task admission
+
     def submit(self, task: Task):
+        """Admit one normalized task; a repeated identity must have the same body."""
         old = self.store.one('SELECT * FROM tasks WHERE id=?', (task.key,))
         if old:
             if canonical(Task.model_validate_json(old['body']).model_dump()) != canonical(task.model_dump()):
@@ -72,6 +79,7 @@ class Runtime:
         return self.task(task.key)
 
     def admit_plan(self, plan_id, version, wire, tasks, cancelled=()):
+        """Commit the version fence and all translated actions together."""
         encoded = canonical(wire)
         old = self.store.one('SELECT body FROM plan_batches WHERE id=? AND version=?', (plan_id, version))
         if old:
@@ -101,6 +109,8 @@ class Runtime:
     def advance(self, plan_id, version):
         self.store.write('INSERT INTO plans VALUES(?,?) ON CONFLICT(id) DO UPDATE SET version=max(version,excluded.version)', (plan_id, version))
 
+    # Durable results and execution authority
+
     def task(self, key):
         row = self.store.one('SELECT * FROM tasks WHERE id=?', (key,))
         if not row:
@@ -120,6 +130,7 @@ class Runtime:
         return r
 
     def gate(self, t):
+        """Fence stale, stopped, expired, prohibited, or paused work before dispatch."""
         floor = self.store.one('SELECT version FROM plans WHERE id=?', (t.plan_id,))
         if floor['version'] != t.plan_version:
             return 'SUPERSEDED'
@@ -143,7 +154,10 @@ class Runtime:
             if t.plan_id == plan_id and (t.line_id or t.task_id) == line_id:
                 self.control('disable', task_key=t.key)
 
+    # Observation ingest and ownership reconciliation
+
     def observe(self, event: Event):
+        """Persist deduplicated independent facts for triggers and the Service outbox."""
         if event.type == 'clock.advanced' and self.clock.virtual:
             self.clock.advance(event.payload['timestamp'])
             return True
@@ -168,6 +182,7 @@ class Runtime:
         return True
 
     def reconcile(self, observation):
+        """Relinquish property authority on independent change so the outside actor wins."""
         for row in self.store.rows('SELECT * FROM ownership WHERE target=? AND owned=1', (observation.target,)):
             t = Task.model_validate(self.task(row['task'])['body'])
             # Subscription delivery can lag a later independent verification
@@ -194,7 +209,10 @@ class Runtime:
                 prior = self.task(row['task'])['result'] or {}
                 self.result(t, 'OVERRIDDEN', attempted=True, command=prior.get('command_status'), observation=observation, reason='EXTERNAL_CHANGE_OBSERVED')
 
+    # Local facts, triggers, and scheduling
+
     def event_cursor(self):
+        """Separate later facts from pre-admission facts even at the same timestamp."""
         row = self.store.one("SELECT seq FROM sqlite_sequence WHERE name='event_outbox'")
         return row['seq'] if row else 0
 
@@ -227,6 +245,7 @@ class Runtime:
         return self.now()-since >= condition.stable_seconds
 
     async def local_trigger(self, t, row):
+        """Evaluate the admitted trigger against local time and independent facts."""
         if t.trigger.type == 'state.v1':
             return await self.condition(t.trigger.condition, t, 'trigger_since')
         match, evidence = evaluate(t.trigger, self.facts(row['received'], row['event_floor']), min(self.now(), t.valid_until), max(row['received'], t.valid_from))
@@ -244,6 +263,7 @@ class Runtime:
                                substrate='HOME_RULE', payload={'rule':kind+'.v1','evidence_ids':evidence,'plan_id':t.plan_id,'plan_version':t.plan_version}))
 
     async def tick(self):
+        """Serialize lifecycle, due work, and ownership checks within Home."""
         async with self.lock:
             await self.lifecycle()
             for row in self.store.rows("SELECT * FROM tasks WHERE status IN ('WAITING','RETRY_WAIT')"):
@@ -259,7 +279,10 @@ class Runtime:
                 except (Unavailable, TimeoutError):
                     pass
 
+    # Current eligibility, dispatch, and verification
+
     async def precheck(self, t, before, cap):
+        """Check current eligibility; a plan cannot attest to present household state."""
         for check in t.prechecks:
             if check.kind == 'quiet_hours':
                 hour = datetime.fromtimestamp(self.now(), ZoneInfo(check.timezone)).hour
@@ -293,6 +316,7 @@ class Runtime:
                            phase='RETRY_WAIT' if retry else status)
 
     async def execute(self, t):
+        """Reserve one operation, dispatch it, then verify with fresh independent readback."""
         self.store.write('UPDATE tasks SET attempts=attempts+1,next_attempt=NULL WHERE id=?', (t.key,))
         if t.family == 'ABSTAIN':
             return self.result(t, 'ABSTAINED')
@@ -395,7 +419,10 @@ class Runtime:
             row = self.task(t.key)
             return self.result(t, 'INDETERMINATE' if row['status']=='EXECUTING' else 'FAILED', attempted=row['status']=='EXECUTING', reason=type(e).__name__)
 
+    # Lifecycle, job stop, and guarded restoration
+
     async def lifecycle(self):
+        """Apply end rules and reconcile only the effects or jobs this task still owns."""
         for row in self.store.rows('SELECT * FROM tasks WHERE started_at IS NOT NULL AND ended_at IS NULL'):
             t = Task.model_validate_json(row['body'])
             retired = self.gate(t) in ('CANCELLED','SUPERSEDED')
@@ -469,6 +496,7 @@ class Runtime:
             return await self._restore(key)
 
     async def _restore(self, key):
+        """Restore the prior value only with fresh ownership and a native revision guard."""
         row = self.task(key)
         t = Task.model_validate(row['body'])
         if row['restore_status'] or not t.restore:
@@ -525,6 +553,8 @@ class Runtime:
             if Task.model_validate_json(row['body']).plan_id == plan_id:
                 await self.restore(row['id'])
         await self.tick()
+
+    # Timer frontier and retention
 
     def next_due(self):
         candidates = []

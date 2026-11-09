@@ -46,6 +46,10 @@ The representative scenario is a child's birthday party. The prototype distingui
 
 An LLM response never authorizes a physical action by itself. Product policy, capability constraints, current state, user intervention, and prohibited-action rules remain deterministic checks.
 
+## Home implementation
+
+[SPIRA Home](home/README.md) contains the runnable Home runtime, Settle 3.2 contracts, independent testbed, and Galaxy S10 staging instructions for the team snapshot.
+
 ## Development baseline
 
 The paper specifies the current prototype baseline: Python 3.12 for retrieval, Service, Home logic, and simulation; Flutter 3.47.5 for the App; PostgreSQL 16 with pgvector for persistent data and retrieval; and an existing Galaxy S10 5G as the Home prototype substrate. The development workstation and estimated incremental cost are recorded in Section III.

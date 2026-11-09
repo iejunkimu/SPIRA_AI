@@ -7,7 +7,7 @@ Validated on 2026-11-09. This is a new run of the selected source and team snaps
 | Source | `iejunkimu/settle_home` · `codex/reality-adversary-closure-2026-11-08` |
 | Source commit | `4d9656fd9c9b897c65da47da008f2a1727a94947` |
 | Source branch relation | Remote and local candidate heads matched; candidate was two commits ahead of source `main` at `be9b42ee6394c36781781ec96a2d816001a0219d`, with zero divergence. |
-| Team repository | `iejunkimu/SPIRA_AI` · `codex/home-runtime-team-integration-2026-11-09`, based on team `main` at `21f8a90b95ae58d91262372eb433b66cd2bf553e` |
+| Team repository | `iejunkimu/SPIRA_AI` · `home-runtime-team-integration-2026-11-09`, based on team `main` at `21f8a90b95ae58d91262372eb433b66cd2bf553e` |
 | Exact deployed team commit | `c029e95f26e787db3188884f4102b2a5abdcd442`. Later commits add documentation and validation tooling/evidence; runtime and Compose are identical. |
 | Deployed Git subtree | `ac70cf88bd647e4312a2d8dfafc4b33c2382dbf2` (`home/`) |
 | Release archive SHA-256 | `9fe574e10498f0ec3b4f53dbb865c6c56ce898bb015b79b2d84cdde6275bc7e1` (matched before and after transfer) |

@@ -3,11 +3,11 @@ import argparse
 import json
 import time
 import uuid
-import subprocess
 from datetime import datetime,timedelta
 from zoneinfo import ZoneInfo
 from pathlib import Path
 from run_v32 import Runner
+from reality_adversary.process import s10_process
 
 
 def run(home,world,service,restart_home=False):
@@ -111,7 +111,7 @@ def run(home,world,service,restart_home=False):
         r.post(r.w,'/mutate',{'target':'mqtt:light','values':{'power':False},'provenance':'USER'});r.settle()
         assert row(k)['status']=='OVERRIDDEN'
         if restart_home:
-            subprocess.run(['ssh','s10plus','docker -H unix:///opt/spira-home/docker.sock restart spira-home-v32-home-1'],check=True,capture_output=True,text=True)
+            s10_process('restart', profile='v32')
             for _ in range(80):
                 try:
                     if row(k)['status']=='OVERRIDDEN':break
@@ -131,5 +131,5 @@ def run(home,world,service,restart_home=False):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--home',default='http://127.0.0.1:8730');p.add_argument('--world',default='http://127.0.0.1:8731');p.add_argument('--service',default='http://127.0.0.1:8732');p.add_argument('--output',default='docs/evidence/v32-adversaries.json');p.add_argument('--restart-home',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--home',default='http://127.0.0.1:8730');p.add_argument('--world',default='http://127.0.0.1:8731');p.add_argument('--service',default='http://127.0.0.1:8732');p.add_argument('--output',default='docs/evidence/v32-adversaries.json');p.add_argument('--restart-home',action='store_true',help='Restart only the local S10 team v32 Home');a=p.parse_args()
     result=run(a.home,a.world,a.service,a.restart_home);Path(a.output).write_text(json.dumps(result,indent=2)+'\n')

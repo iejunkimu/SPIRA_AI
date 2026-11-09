@@ -1,4 +1,5 @@
 """Real subprocess/MQTT regressions. No Home internals or process-state writes."""
+import os
 import socket
 
 import pytest
@@ -10,12 +11,13 @@ from reality_adversary.scenarios import named
 
 @pytest.fixture(scope='module')
 def runner():
+    port = int(os.environ.get('SPIRA_TEST_MQTT_PORT', '18883'))
     try:
-        with socket.create_connection(('127.0.0.1',18883),timeout=.5):
+        with socket.create_connection(('127.0.0.1', port), timeout=.5):
             pass
     except OSError:
-        pytest.skip('Real MQTT broker required at 127.0.0.1:18883; start base Compose')
-    stack = LocalStack()
+        pytest.skip(f'Real MQTT broker required at 127.0.0.1:{port}; start base Compose')
+    stack = LocalStack(mqtt_port=port)
     r = Runner(stack.home,stack.world,stack)
     try:
         stack('start','world')

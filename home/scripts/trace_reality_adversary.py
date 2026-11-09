@@ -110,9 +110,9 @@ def run(args):
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--local',action='store_true',help='Own disposable Home/world subprocesses; existing MQTT broker required')
-    p.add_argument('--s10',action='store_true',help='Authorize bounded process control of S10 reality profile')
-    p.add_argument('--home',default='http://127.0.0.1:18740')
-    p.add_argument('--world',default='http://127.0.0.1:18741')
+    p.add_argument('--s10',action='store_true',help='Run on S10 with bounded process control of the team reality profile')
+    p.add_argument('--home',default='http://127.0.0.1:8755')
+    p.add_argument('--world',default='http://127.0.0.1:8756')
     p.add_argument('--mqtt-port',type=int,default=18883)
     p.add_argument('--runs',type=int,default=0)
     p.add_argument('--seed',type=int,default=0)

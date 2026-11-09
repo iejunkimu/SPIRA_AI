@@ -1,0 +1,88 @@
+# Galaxy S10 host networking: all listeners are loopback and outside the development stack.
+name: spira-team-home
+x-home-image: &home-image
+  image: spira-team-home:${SPIRA_TEAM_REVISION:?Set SPIRA_TEAM_REVISION to the archived team commit}
+  network_mode: host
+  restart: unless-stopped
+x-mqtt: &mqtt
+  MQTT_HOST: "127.0.0.1"
+  MQTT_PORT: "19883"
+x-v32: &v32
+  <<: *mqtt
+  MQTT_PREFIX: spira/team/v32
+x-reality: &reality
+  <<: *mqtt
+  MQTT_PREFIX: spira/team/reality
+
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    network_mode: host
+    command: ["mosquitto", "-c", "/mosquitto/config/mosquitto.conf"]
+    volumes: ["./mosquitto-team-s10.conf:/mosquitto/config/mosquitto.conf:ro"]
+    restart: unless-stopped
+  world:
+    <<: *home-image
+    command: ["uvicorn", "spira_home.testbed.world:app", "--host", "127.0.0.1", "--port", "8751"]
+    environment:
+      <<: *mqtt
+      MQTT_PREFIX: spira/team/base
+    volumes: ["${SPIRA_TEAM_ROOT:-/opt/spira-team-home}/state/base-world:/state"]
+    depends_on: [mqtt]
+  home:
+    <<: *home-image
+    command: ["uvicorn", "spira_home.app:app", "--host", "127.0.0.1", "--port", "8750"]
+    environment:
+      <<: *mqtt
+      MQTT_PREFIX: spira/team/base
+    volumes: ["${SPIRA_TEAM_ROOT:-/opt/spira-team-home}/state/base-home:/state"]
+    depends_on: [mqtt, world]
+  v32-service:
+    <<: *home-image
+    profiles: [v32]
+    command: ["uvicorn", "spira_home.testbed.service_fixture:app", "--host", "127.0.0.1", "--port", "8754"]
+    environment: {SERVICE_FIXTURE_DB: "/state/service.db"}
+    volumes: ["${SPIRA_TEAM_ROOT:-/opt/spira-team-home}/state/v32-service:/state"]
+  v32-world:
+    <<: *home-image
+    profiles: [v32]
+    command: ["uvicorn", "spira_home.testbed.world:app", "--host", "127.0.0.1", "--port", "8753"]
+    environment:
+      <<: *v32
+      WORLD_CLOCK: "1"
+      WORLD_START: "1793880000"
+      WORLD_PROFILE: lg_assumed
+    volumes: ["${SPIRA_TEAM_ROOT:-/opt/spira-team-home}/state/v32-world:/state"]
+    depends_on: [mqtt]
+  v32-home:
+    <<: *home-image
+    profiles: [v32]
+    command: ["uvicorn", "spira_home.app:app", "--host", "127.0.0.1", "--port", "8752"]
+    environment:
+      <<: *v32
+      HOME_TEST_MODE: "1"
+      HOME_HOUSEHOLD_ID: h_v32
+      SERVICE_URL: http://127.0.0.1:8754
+      WORLD_URL: http://127.0.0.1:8753
+    volumes: ["${SPIRA_TEAM_ROOT:-/opt/spira-team-home}/state/v32-home:/state"]
+    depends_on: [mqtt, v32-world, v32-service]
+  reality-world:
+    <<: *home-image
+    profiles: [reality]
+    command: ["uvicorn", "spira_home.testbed.world:app", "--host", "127.0.0.1", "--port", "8756"]
+    environment:
+      <<: *reality
+      WORLD_CLOCK: "1"
+      WORLD_START: "1793880000"
+      WORLD_PRESSURE: "1"
+    volumes: ["${SPIRA_TEAM_ROOT:-/opt/spira-team-home}/state/reality-world:/state"]
+    depends_on: [mqtt]
+  reality-home:
+    <<: *home-image
+    profiles: [reality]
+    command: ["uvicorn", "spira_home.app:app", "--host", "127.0.0.1", "--port", "8755"]
+    environment:
+      <<: *reality
+      HOME_TEST_MODE: "1"
+    volumes: ["${SPIRA_TEAM_ROOT:-/opt/spira-team-home}/state/reality-home:/state"]
+    depends_on: [mqtt, reality-world]

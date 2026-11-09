@@ -1,5 +1,6 @@
 """Explicit process owners; no shell expressions accepted from scenarios."""
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -67,13 +68,26 @@ class LocalStack:
         self.temp.cleanup()
 
 
-def s10_process(action, target='home'):
-    services = {'home':'reality-home', 'world':'reality-world', 'broker':'mqtt'}
-    actions = {'kill':['stop', '-t', '0'], 'stop':['stop'], 'start':['start'], 'restart':['restart', '-t', '0']}
-    if action not in actions or target not in services:
-        raise ValueError('Unsupported bounded S10 process occurrence')
-    command = ['docker', '-H', 'unix:///opt/spira-home/docker.sock', 'compose', '-f', '/opt/spira-home/compose.yaml',
-               '--profile', 'reality', *actions[action], services[target]]
-    result = subprocess.run(['ssh', 's10plus', *command], capture_output=True, text=True, timeout=55)
+def s10_process(action, target='home', *, profile='reality'):
+    """Replace only a declared test container in the local team deployment."""
+    services = {
+        'reality': {'home': 'reality-home', 'world': 'reality-world', 'broker': 'mqtt'},
+        'v32': {'home': 'v32-home'},
+    }
+    actions = {'kill': ['stop', '-t', '0'], 'stop': ['stop'], 'start': ['start'], 'restart': ['restart', '-t', '0']}
+    if action not in actions or target not in services.get(profile, {}):
+        raise ValueError('Unsupported bounded team S10 process occurrence')
+    revision = os.environ.get('SPIRA_TEAM_REVISION', '')
+    if not re.fullmatch(r'[0-9a-f]{40}', revision):
+        raise ValueError('Set SPIRA_TEAM_REVISION to the deployed team commit SHA')
+    root = Path(os.environ.get('SPIRA_TEAM_ROOT', '/opt/spira-team-home'))
+    compose = root / 'releases' / revision / 'deploy' / 'compose.team-s10.yaml'
+    command = [
+        'docker', '-H', 'unix:///opt/spira-home/docker.sock', 'compose',
+        '--project-name', 'spira-team-home', '-f', str(compose), '--profile', profile,
+        *actions[action], services[profile][target],
+    ]
+    result = subprocess.run(command, capture_output=True, text=True, timeout=55)
     result.check_returncode()
-    return dict(action=action, target=target, exit_code=result.returncode, scope='S10 project containers; preserved SQLite')
+    return dict(action=action, target=target, exit_code=result.returncode,
+                scope='S10 team project containers; preserved SQLite')

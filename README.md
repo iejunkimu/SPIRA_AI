@@ -7,13 +7,13 @@ Hanyang University, Fall 2026<br>
 
 ## Re-entry and repository standing
 
-`main` publishes the Submission A+B paper. Its last paper publication is `21f8a90` (2026-11-06); this is a submission artifact, not evidence that the complete App/Server/Home pipeline is implemented or that later platform choices are settled.
+`main` publishes the Submission A+B paper. Its last paper publication is `21f8a90` (2026-11-06); this is a submission artifact, separate from ongoing native development and its implementation evidence.
 
 - [Team Home milestone](https://github.com/iejunkimu/SPIRA_AI/tree/home-runtime-team-integration-2026-11-09/home): a separately validated integration snapshot on its named branch. Its [UPSTREAM record](https://github.com/iejunkimu/SPIRA_AI/blob/home-runtime-team-integration-2026-11-09/home/UPSTREAM.md) identifies the selected source and promotion process. There is no automatic synchronization or blanket adoption of newer experiments.
 - [Independent Home development](https://github.com/iejunkimu/settle_home): runtime, connector and experiment owner; access is restricted to that repository's collaborators.
 - [SPIRA_KB](https://github.com/uijinlee-luj/SPIRA_KB): current synthetic-case pipeline and shared embedding package, maintained separately by its native owner.
 
-New App/Server integration and changes to the shared contract require their own implementation and owner decisions. The paper's Flutter/version table records its published baseline.
+**TEAM-FACING write contract:** a commit here means this state is deliberately presented to the team. Personal development stays in the native owners. See [TEAM-WRITE-CONTRACT.md](TEAM-WRITE-CONTRACT.md) and the promotion receipt template before proposing a new milestone. Current App product direction is Flutter mobile for iOS and Android; publication-version tables and old OPEN episodes do not reopen it.
 
 ## Published Submission A+B
 

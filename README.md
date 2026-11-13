@@ -7,6 +7,8 @@ Hanyang University, Fall 2026<br>
 
 ## Current document
 
+**Standing · published paper plus selected Home milestone.** This integration branch carries the Home snapshot documented in [home/UPSTREAM.md](home/UPSTREAM.md). It is a separate team staging consumer, not the independent Home development head and not proof of complete App/Server integration. Read the paper's development/version table as its publication baseline; later platform and contract adoption require their native owner decisions.
+
 This repository contains the current CSE406 Submission A+B paper and its LaTeX source.
 
 - [Submission PDF](document/main.pdf)

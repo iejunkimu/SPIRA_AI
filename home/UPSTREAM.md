@@ -1,5 +1,7 @@
 # Upstream and standing
 
+**SELECTED MILESTONE / REFERENCE PROJECTION · GC clarification 2026-11-13.** The source pin below is the snapshot identity. Ordinary development belongs upstream. This branch remains callable because its separate S10 team stack is still running; the read-only check identified image revision `c029e95f26e787db3188884f4102b2a5abdcd442`. A newer experiment, a newer README, or the absence of an open PR does not automatically supersede or merge this consumer. Apply the explicit promotion procedure below for a new milestone.
+
 | | |
 | --- | --- |
 | Source repository | [`iejunkimu/settle_home`](https://github.com/iejunkimu/settle_home) (private) |

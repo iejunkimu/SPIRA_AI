@@ -1,0 +1,9 @@
+# Reviewers are requested automatically for changes in these folders.
+/server/      @sseojin
+/hub/         @iejunkimu
+/app/         @iejunkimu
+/simulator/   @iejunkimu
+/contracts/   @sseojin @iejunkimu
+/contracts/kb/ @sseojin @uijinlee-luj
+/docs/paper/  @LeeJeeWon0916
+/.github/     @sseojin @iejunkimu
